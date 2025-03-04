@@ -1,5 +1,5 @@
 # Code-Shop
-Sell vouchers,coupon,licenses,active code and more with cryptocurrency,Automatic delivery
+Sell vouchers,coupon,licenses,active code and more with cryptocurrency,Automatic delivery,Free,Open Source.
 
 `npm install`
 
