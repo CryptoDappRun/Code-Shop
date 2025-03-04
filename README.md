@@ -7,7 +7,10 @@ Sell vouchers,coupon,licenses,active code and more with cryptocurrency,Automatic
 
 `node v20 tested.`
 
+`chmod -R 755 public/uploads` make sure this folder has write permission.
+
 `node server.js` to run it.
+
 
 
 <img src="screenshot/1.png"   > 
