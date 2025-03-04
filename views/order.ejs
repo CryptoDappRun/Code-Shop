@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Order - Code Shop</title>
+    <link href="/css/output.css" rel="stylesheet">
+</head>
+<body class="bg-gray-900 text-white min-h-screen">
+    <div id="toast-container" class="fixed top-4 right-4 z-50"></div>
+    <header class="bg-gray-800 shadow-lg py-6">
+        <div class="container mx-auto px-4 flex justify-between items-center">
+            <h1 class="text-2xl font-bold">Order Details</h1>
+            <div class="space-x-4">
+                <span class="text-gray-300">Hello, <%= user.username %></span>
+                <a href="/panel" class="text-blue-400 hover:underline">Panel</a>
+                <a href="/logout" class="text-red-400 hover:underline">Logout</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-12">
+        <div class="bg-gray-800 rounded-lg shadow-lg p-6 max-w-2xl mx-auto">
+            <h2 class="text-3xl font-bold mb-4"><%= campaign.name %></h2>
+            <img src="<%= campaign.image %>" alt="<%= campaign.commodity %>" class="w-full h-40 object-cover rounded-lg mb-4">
+            <p class="text-gray-400 mb-2">Commodity: <%= campaign.commodity %></p>
+            <% if (campaign.description) { %>
+                <p class="text-gray-300 mb-4"><%= campaign.description %></p>
+            <% } %>
+            <p class="text-lg font-medium text-green-400 mb-6">
+                <%= campaign.isFree ? 'Free' : `$${campaign.price} USD` %>
+            </p>
+
+            <h3 class="text-xl font-semibold mb-4">Choose Payment Method</h3>
+            <form id="paymentForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-300">Cryptocurrency</label>
+                    <select name="cryptoType" id="crypto-type-select" class="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                        <!-- Options populated dynamically -->
+                    </select>
+                </div>
+                <button type="submit" class="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-medium py-3 rounded-lg hover:from-blue-600 hover:to-indigo-700 transition-colors duration-200">
+                    Confirm Payment
+                </button>
+            </form>
+        </div>
+    </main>
+
+    <script>
+        function showToast(message, type = 'success') {
+            const toastContainer = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast p-4 mb-2 rounded-lg shadow-lg text-white animate-fade-in-out ${
+                type === 'success' ? 'bg-green-500' : type === 'error' ? 'bg-red-500' : 'bg-yellow-500'
+            }`;
+            toast.textContent = message;
+
+            toastContainer.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const response = await fetch('/api/payment-methods');
+            const methods = await response.json();
+            const select = document.getElementById('crypto-type-select');
+            select.innerHTML = '';
+
+            methods.forEach(method => {
+                const option = document.createElement('option');
+                option.value = method;
+                option.textContent = `${
+                    method === 'BTC' ? 'Bitcoin' :
+                    method === 'ETH' ? 'Ethereum' :
+                    method === 'DOGE' ? 'Dogecoin' :
+                    method === 'POL' ? 'Polygon' :
+                    method === 'BNB' ? 'Binance Smart Chain' :
+                    method === 'AVAX' ? 'Avalanche' : method
+                } (${method})`;
+                select.appendChild(option);
+            });
+        });
+
+        document.getElementById('paymentForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const cryptoType = formData.get('cryptoType');
+            const campaignId = '<%= campaign._id %>';
+
+            const response = await fetch('/api/purchase', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ campaignId, cryptoType })
+            });
+            const data = await response.json();
+
+            if (data.paymentAddress) {
+                //showToast(`Send ${data.cryptoAmount} ${data.cryptoType} (worth $${data.amount} USD) to ${data.paymentAddress}`, 'success');
+                window.location.href = `/transaction/${data.transactionId}`;
+            } else {
+                showToast('Error: ' + (data.error || 'Purchase failed'), 'error');
+            }
+        });
+    </script>
+</body>
+</html>

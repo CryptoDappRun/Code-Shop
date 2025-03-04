@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login - Code Shop</title>
+    <link href="/css/output.css" rel="stylesheet">
+</head>
+<body class="bg-gray-900 text-white min-h-screen flex items-center justify-center">
+    <div class="bg-gray-800 p-8 rounded-lg shadow-lg w-full max-w-md">
+        <h1 class="text-3xl font-bold mb-6 text-center">Login</h1>
+        <% if (typeof error !== 'undefined') { %>
+            <p class="text-red-400 mb-4 text-center"><%= error %></p>
+        <% } %>
+        <form method="POST" action="/login" class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-300">Username</label>
+                <input type="text" name="username" class="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-300">Password</label>
+                <input type="password" name="password" class="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+            </div>
+            <button type="submit" class="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-medium py-3 rounded-lg hover:from-blue-600 hover:to-indigo-700 transition-colors duration-200">Login</button>
+        </form>
+        <p class="mt-4 text-center text-gray-400">No account? <a href="/register" class="text-blue-400 hover:underline">Register</a></p>
+    </div>
+</body>
+</html>

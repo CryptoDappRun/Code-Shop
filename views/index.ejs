@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Code Shop</title>
+    <link href="/css/output.css" rel="stylesheet">
+</head>
+<body class="bg-gray-900 text-white min-h-screen">
+    <div id="toast-container" class="fixed top-4 right-4 z-50"></div>
+    <header class="bg-gray-800 shadow-lg py-6">
+        <div class="container mx-auto px-4 flex justify-between items-center">
+            <div>
+                <h1 class="text-4xl font-extrabold tracking-tight">Code Shop</h1>
+                <p class="mt-2 text-gray-400">Buy vouchers,coupon,licenses,active code and more with cryptocurrency</p>
+            </div>
+            <div class="space-x-4">
+                <% if (user) { %>
+                    <span class="text-gray-300">Hello, <%= user.username %></span>
+                    <a href="/panel" class="text-blue-400 hover:underline">Panel</a>
+                    <a href="/logout" class="text-red-400 hover:underline">Logout</a>
+                <% } else { %>
+                    <a href="/login" class="text-blue-400 hover:underline">Login</a>
+                    <a href="/register" class="text-blue-400 hover:underline">Register</a>
+                <% } %>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-12">
+        <h2 class="text-3xl font-bold mb-4 text-center">Available Codes</h2>
+        <div class="mb-6">
+            <input type="text" id="search-input" placeholder="Search by name or commodity..." class="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div id="campaigns" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Campaigns will be loaded here dynamically -->
+        </div>
+    </main>
+
+    <footer class="bg-gray-800 py-4 mt-auto">
+        <div class="container mx-auto px-4 text-center text-gray-400">
+            <p>© 2025 Code Shop. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="/js/frontend.js"></script>
+</body>
+</html>

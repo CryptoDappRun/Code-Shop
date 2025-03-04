@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Login - Code Shop</title>
+    <link href="/css/output.css" rel="stylesheet">
+</head>
+<body class="bg-gray-900 text-white min-h-screen flex items-center justify-center">
+    <div class="bg-gray-800 rounded-lg shadow-lg p-6 max-w-md w-full">
+        <h1 class="text-3xl font-bold mb-6 text-center">Admin Login</h1>
+        <form method="POST" action="/admin/login" class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-300">Password</label>
+                <input type="password" name="password" placeholder="Enter admin password" class="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+            </div>
+            <button type="submit" class="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-medium py-3 rounded-lg hover:from-blue-600 hover:to-indigo-700 transition-colors duration-200">Login</button>
+            <% if (typeof error !== 'undefined') { %>
+                <p class="text-red-400 text-center"><%= error %></p>
+            <% } %>
+        </form>
+    </div>
+</body>
+</html>

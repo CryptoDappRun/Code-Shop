@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Transaction Details - Code Shop</title>
+    <link href="/css/output.css" rel="stylesheet">
+</head>
+<body class="bg-gray-900 text-white min-h-screen">
+    <div id="toast-container" class="fixed top-4 right-4 z-50"></div>
+    <header class="bg-gray-800 shadow-lg py-6">
+        <div class="container mx-auto px-4 flex justify-between items-center">
+            <h1 class="text-2xl font-bold">Transaction Details</h1>
+            <div class="space-x-4">
+                <span class="text-gray-300">Hello, <%= user.username %></span>
+                <a href="/panel" class="text-blue-400 hover:underline">Back to Panel</a>
+                <a href="/logout" class="text-red-400 hover:underline">Logout</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-12">
+        <div class="bg-gray-800 rounded-lg shadow-lg p-6 max-w-3xl mx-auto">
+            <!-- Header: You Send / You Receive -->
+            <div id="SendInfoid" class="flex justify-center items-center mb-8">
+                <div class="text-center">
+                    <h2 class="text-xl font-semibold text-gray-300">You need Send</h2>
+                    <p class="text-2xl font-bold text-green-400">
+                        <%= transaction.cryptoAmount.toFixed(8) %> <%= transaction.cryptoType %>
+                    </p>
+                    <p class="text-gray-400 truncate"><%= transaction.address %></p>
+                </div>
+                <div class="mx-6">
+                    <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    </svg>
+                </div>
+             
+            </div>
+
+            <!-- Order Details -->
+            <div class="grid grid-cols-2 gap-4 mb-8">
+                <div>
+                    <p><span class="font-medium text-gray-300">Order ID:</span> <span class="text-red-400"><%= transaction._id %></span></p>
+                    <% if (transaction.status === 'pending') { %>
+                        <p id="timeRemainingID"><span class="font-medium text-gray-300">Time Remaining:</span> <span id="countdown" style="color: red; font-size: 40px;"></span></p>
+                    <% } %>
+                </div>
+                <div>
+                    <p><span class="font-medium text-gray-300">Send Crypto Type:</span> <%= transaction.cryptoType %></p>
+                    <p><span class="font-medium text-gray-300">Created At:</span> <%= new Date(transaction.createdAt).toLocaleString() %></p>
+                </div>
+            </div>
+
+            <!-- Payment Section -->
+            <% if (transaction.status !== 'expired' && transaction.status !== 'completed') { %>
+                <div class="mb-8">
+                    <h3 class="text-xl font-semibold mb-4">Send <%= transaction.cryptoAmount.toFixed(8) %> <%= transaction.cryptoType %> to the address</h3>
+                    <div class="flex items-center bg-gray-700 rounded-lg p-3 mb-2">
+                        <p id="payment-address" class="flex-1 text-gray-300 truncate"><%= transaction.address %></p>
+                        <button onclick="navigator.clipboard.writeText('<%= transaction.address %>'); showToast('Address copied!', 'success')" class="ml-2 bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">Copy</button>
+                    </div>
+                    <p class="text-gray-400 text-sm mb-4">The transaction will be processed after receiving 1 network confirmation.</p>
+                    <div id="qr-code-section" class="flex justify-center">
+                        <div id="qrcode" class="bg-white p-2 rounded-lg"></div>
+                    </div>
+                </div>
+            <% } %>
+
+            <!-- Receiving Address (Admin Address) -->
+            <% if (transaction.status === 'completed') { %>
+                <div class="mb-8">
+                    <h3 class="text-xl font-semibold mb-4">Funds Sent To</h3>
+                    <div class="flex items-center bg-gray-700 rounded-lg p-3">
+                        <p class="flex-1 text-gray-300 truncate"><%= process.env[`ADMIN_${transaction.cryptoType.toUpperCase()}_ADDRESS`] %></p>
+                        <button onclick="navigator.clipboard.writeText('<%= process.env[`ADMIN_${transaction.cryptoType.toUpperCase()}_ADDRESS`] %>'); showToast('Admin address copied!', 'success')" class="ml-2 bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">Copy</button>
+                    </div>
+                </div>
+            <% } %>
+
+            <!-- Transaction Details -->
+            <div class="space-y-4">
+                <p><span class="font-medium text-gray-300">Campaign:</span> <%= transaction.campaignId ? transaction.campaignId.name : 'N/A' %></p>
+                <p><span class="font-medium text-gray-300">Commodity:</span> <%= transaction.campaignId ? transaction.campaignId.commodity : 'N/A' %></p>
+                <p><span class="font-medium text-gray-300">Status:</span> <span id="status" class="<%= transaction.status === 'completed' ? 'text-green-400' : transaction.status === 'expired' ? 'text-red-400' : 'text-yellow-400' %>"><%= transaction.status %></span></p>
+                <% if (transaction.code) { %>
+                    <p><span class="font-medium text-gray-300">Code:</span> <span style="color: green; font-size: 40px;"><%= transaction.code %></span></p>
+                <% } %>
+            </div>
+
+            
+        </div>
+    </main>
+
+    <script src="/js/qrcode.js"></script>
+    <script>
+        function showToast(message, type = 'success') {
+            const toastContainer = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast p-4 mb-2 rounded-lg shadow-lg text-white animate-fade-in-out ${
+                type === 'success' ? 'bg-green-500' : type === 'error' ? 'bg-red-500' : 'bg-yellow-500'
+            }`;
+            toast.textContent = message;
+
+            toastContainer.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        const paymentAddress = '<%= transaction.address %>';
+        const qrCodeSection = document.getElementById('qr-code-section');
+        if (qrCodeSection) {
+            new QRCode(document.getElementById("qrcode"), {
+                text: paymentAddress,
+                width: 128,
+                height: 128,
+                correctLevel: QRCode.CorrectLevel.H
+            });
+        }
+
+        const transactionId = '<%= transaction._id %>';
+        const createdAt = new Date('<%= transaction.createdAt %>').getTime();
+        const orderExpiredTime = parseInt('<%= process.env.OrderExpiredTime || 600000 %>', 10);
+
+        function updateCountdown() {
+            const now = Date.now();
+            const timeElapsed = now - createdAt;
+            const timeRemaining = orderExpiredTime - timeElapsed;
+
+            const countdownElement = document.getElementById('countdown');
+            if (countdownElement) {
+                if (timeRemaining <= 0) {
+                    countdownElement.textContent = 'Expired';
+                } else {
+                    const minutes = Math.floor(timeRemaining / 60000);
+                    const seconds = Math.floor((timeRemaining % 60000) / 1000);
+                    countdownElement.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+                }
+            }
+        }
+
+        if (document.getElementById('countdown')) {
+            updateCountdown();
+            setInterval(updateCountdown, 1000);
+        }
+
+        function hidePaymentDetails() {
+            const paymentAddress = document.getElementById('payment-address');
+            const qrCodeSection = document.getElementById('qr-code-section');
+
+            document.getElementById('SendInfoid').innerHTML=""
+            document.getElementById('timeRemainingID').innerHTML=""
+            if (paymentAddress) paymentAddress.style.display = 'none';
+            if (qrCodeSection) qrCodeSection.style.display = 'none';
+        }
+
+
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const response = await fetch(`/api/check-payment/${transactionId}`);
+            const result = await response.json();
+            console.log("Immediate check result:", result.status);
+            if (result.status === 'completed') {
+                document.getElementById('status').textContent = 'completed';
+                document.getElementById('status').className = 'text-green-400';
+                hidePaymentDetails();
+                showToast(`Payment successful! Your code: ${result.code}`, 'success');
+                
+            } else if (result.status === 'expired') {
+                document.getElementById('status').textContent = 'expired';
+                document.getElementById('status').className = 'text-red-400';
+                hidePaymentDetails();
+                showToast('Transaction has expired.', 'error');
+            } 
+        });
+
+        const interval = setInterval(async () => {
+            const response = await fetch(`/api/check-payment/${transactionId}`);
+            const result = await response.json();
+            console.log("Polling result:", result.status);
+            if (result.status === 'completed') {
+                clearInterval(interval);
+                document.getElementById('status').textContent = 'completed';
+                document.getElementById('status').className = 'text-green-400';
+                hidePaymentDetails();
+                window.location.reload()
+                showToast(`Payment successful! Your code: ${result.code}`, 'success');
+              
+            } else if (result.status === 'expired') {
+                clearInterval(interval);
+                document.getElementById('status').textContent = 'expired';
+                document.getElementById('status').className = 'text-red-400';
+                hidePaymentDetails();
+                showToast('Transaction has expired.', 'error');
+               
+            }
+        }, 30000);
+    </script>
+</body>
+</html>
