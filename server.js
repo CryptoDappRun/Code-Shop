@@ -36,6 +36,7 @@ app.get('/auth-status', (req, res) => {
 });
 
 // Clear database (debugging only)
+/*
 app.get('/clear-database', async (req, res) => {
     try {
         // Drop all collections
@@ -47,6 +48,7 @@ app.get('/clear-database', async (req, res) => {
         res.status(500).json({ error: 'Failed to clear database' });
     }
 });
+*/
 
 // Connect to DB and start server
 connectDB().then(() => {
